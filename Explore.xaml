@@ -1,0 +1,19 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiImageClassifierApp.Explore">
+
+    <VerticalStackLayout Padding="20" Spacing="15">
+        <Label Text="Welcome to the Explore Page!" FontSize="Header" HorizontalOptions="Center" />
+
+        <!-- Your copied buttons go here -->
+
+        <!-- Define the Image control here -->
+        <Image x:Name="CapturedImage" HeightRequest="300" />
+        
+        <Button Text="Capture Image" Clicked="OnCaptureClicked" />
+        <Button Text="Save to Gallery" Clicked="OnSelectAndUploadImageClickedExplore" IsEnabled="True"/>
+        <!-- New button to call Azure Function -->
+        <Button Text="Call Azure Function" Clicked="OnCallAzureFunctionClicked" />
+
+    </VerticalStackLayout>
+</ContentPage>

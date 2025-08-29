@@ -1,0 +1,72 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiImageClassifierApp.MainPage"
+             Padding="0" >
+    <!-- Reset default page padding -->
+
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- Main content area -->
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="10" Spacing="15">
+
+                <!-- Title -->
+                <Label Text="Locally Agentic 🌍"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,10" />
+
+                <!-- Image Preview Section, hidden by default -->
+                <Frame x:Name="ImagePreviewFrame"
+                       CornerRadius="12"
+                       Padding="10"
+                       HasShadow="True"
+                       BackgroundColor="White"
+                       IsVisible="False">
+                    <!-- Set to False initially -->
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Captured or Selected Image" FontAttributes="Bold" FontSize="18"/>
+                        <Image x:Name="CapturedImage"
+                               HeightRequest="150"
+                               Aspect="AspectFit" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Action Buttons -->
+                <VerticalStackLayout Spacing="10">
+                    <Button Text="📂 Pick from Gallery" Clicked="OnPickImageClicked" />
+                    <Button Text="📸 Capture Image" Clicked="OnCaptureClicked" />
+                    <Button Text="🤖 Send to OpenAI" Clicked="OnSendClicked" IsEnabled="True" />
+                    <Button Text="🔍 Azure Classifier" Clicked="OnClassifyImageClicked" IsEnabled="True" />
+                    <Button Text="🔍 MCP Classifier" Clicked="OnSendClickedMCP" IsEnabled="True" />
+                    <Button Text="☁ Save to Azure" Clicked="OnSelectAndUploadImageClicked" IsEnabled="True"/>
+                    <Button Text="💾 Save to Gallery" Clicked="OnSaveToGalleryClicked" IsEnabled="True"/>
+                </VerticalStackLayout>
+
+                <!-- Results Section (Manually Collapsible) -->
+                <Button Text="Show Results" Clicked="OnToggleResultsClicked" />
+                <Frame x:Name="ResultsFrame"
+                       CornerRadius="12"
+                       Padding="15"
+                       HasShadow="True"
+                       BackgroundColor="#F5F5F5"
+                       IsVisible="False">
+                    <ScrollView>
+                        <Label x:Name="ResultLabel"
+                               LineBreakMode="WordWrap"
+                               FontSize="16"
+                               TextColor="Black"/>
+                    </ScrollView>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Bottom Navigation -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" Padding="20,10,20,10" BackgroundColor="#F0F0F0">
+            <Button Text="🌍 Explore" Clicked="OnGoToNewPageClicked" Grid.Column="0" />
+            <Button Text="📍 Nearby" Clicked="OnGoToNearBYClicked" Grid.Column="1" />
+        </Grid>
+    </Grid>
+</ContentPage>

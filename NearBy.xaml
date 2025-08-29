@@ -1,0 +1,47 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:MauiImageClassifierApp.ViewModels"
+             x:Class="MauiImageClassifierApp.NearBy"
+             Title="Nearby">
+
+    <ContentPage.BindingContext>
+        <viewmodels:NearByViewModel />
+    </ContentPage.BindingContext>
+
+    <StackLayout Padding="20" Spacing="20">
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        <Picker Title="Select Business Type"
+                ItemsSource="{Binding BusinessTypes}"
+                SelectedItem="{Binding SelectedBusinessType}" />
+
+        <Picker Title="Select Radius (miles)"
+            ItemsSource="{Binding RadiusOptions}"
+            SelectedItem="{Binding SelectedRadius}" />
+
+
+        <Button Text="Find Venues"
+            Command="{Binding FindVenuesCommand}" />
+
+        <CollectionView ItemsSource="{Binding Venues}"
+                            SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BorderColor="LightGray"
+                               CornerRadius="8"
+                               Padding="10"
+                               Margin="5">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Name}"
+                                       FontAttributes="Bold"
+                                       FontSize="16" />
+                            <Label Text="{Binding FullAddress}"
+                                       FontSize="14"
+                                       TextColor="Gray" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </StackLayout>
+</ContentPage>
