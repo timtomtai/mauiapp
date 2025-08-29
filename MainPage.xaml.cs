@@ -13,6 +13,7 @@ using Microsoft.Maui.Devices.Sensors;
 using Azure.Storage.Blobs.Models;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
+using static System.Net.WebRequestMethods;
 
 
 
@@ -146,7 +147,7 @@ public partial class MainPage : ContentPage
 
             BlobClient blobClient = containerClient.GetBlobClient(blobName);
 
-            using var fileStream = File.OpenRead(result.FullPath);
+            using var fileStream = System.IO.File.OpenRead(result.FullPath);
 
             var uploadOptions = new BlobUploadOptions
             {
@@ -156,7 +157,7 @@ public partial class MainPage : ContentPage
 
             await blobClient.UploadAsync(fileStream, uploadOptions);
 
-             return blobClient.Uri.AbsoluteUri;
+          
 
             
 
@@ -165,7 +166,6 @@ public partial class MainPage : ContentPage
         {
             await DisplayAlert("Error", $"Failed to upload image: {ex.Message}", "OK");
 
-            return null;
         }
 
         
@@ -225,57 +225,66 @@ public partial class MainPage : ContentPage
 
     async void OnSendClickedMCP(object sender, EventArgs e)
     {
-
-        
-
-        string imageUrl = "https://campio2025flblob.blob.core.windows.net/images/location/IMG_0128.JPG";
-        string venue = "test#test#MR";
-
-        ResultLabel.Text = "Sending data to MCP...";
-
-        // 1. Create an anonymous object with the image_url and venue properties.
-        var payload = new
+        // HIGHLIGHT: Check for a photo selection using MediaPicker as it's assumed from your original code.
+        if (_photo == null)
         {
-            image_url = imageUrl,
-            venue = venue
-        };
-
-        // 2. Serialize the object to a JSON string.
-        string jsonPayload = JsonSerializer.Serialize(payload);
-
-        // 1. Load the image into an IImage object for manipulation
-        Microsoft.Maui.Graphics.IImage originalImage;
-        using (var stream = await _photo.OpenReadAsync())
-        {
-            originalImage = PlatformImage.FromStream(stream);
-        }
-
-        if (originalImage == null)
-        {
-            await DisplayAlert("Error", "Could not load the selected image.", "OK");
+            await DisplayAlert("Selection Cancelled", "No image was selected.", "OK");
             return;
         }
 
-        // 2. Downsize the image (e.g., set max dimension to 800 pixels)
-        float maxDimension = 800f;
-        Microsoft.Maui.Graphics.IImage resizedImage = originalImage.Downsize(maxDimension, disposeOriginal: true);
+        ResultLabel.Text = "Sending data to MCP...";
 
-        // 3. Save the resized image to a memory stream (e.g., as JPEG with reduced quality)
-        using var outputStream = new MemoryStream();
-        await resizedImage.SaveAsync(outputStream, ImageFormat.Jpeg, quality: 0.7f);
-        outputStream.Position = 0; // Reset stream position for reading
+        // HIGHLIGHT: Get the current device location.
+        Location location = null;
+        try
+        {
+            var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+            location = await Geolocation.GetLocationAsync(request);
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Location Error", $"Unable to get location: {ex.Message}", "OK");
+            return;
+        }
 
-        // 4. Send the image data as application/octet-stream
+        // HIGHLIGHT: Convert the image from the MediaPicker stream to a byte array.
+        byte[] imageData;
+        using (var originalStream = await _photo.OpenReadAsync())
+        {
+            using var memoryStream = new MemoryStream();
+            await originalStream.CopyToAsync(memoryStream);
+            imageData = memoryStream.ToArray();
+        }
+
+        // HIGHLIGHT: Check for null imageData after conversion.
+        if (imageData == null || imageData.Length == 0)
+        {
+            await DisplayAlert("Error", "Could not convert image to byte array.", "OK");
+            return;
+        }
+
+        // HIGHLIGHT: Create an anonymous object with the byte array, venue, latitude, and longitude.
+        var venue = "test#test#MR"; // Replace with your actual venue logic.
+        var payload = new
+        {
+            image_url =   "https://campio2025flblob.blob.core.windows.net/images/location/IMG_0128.JPG",// 
+           
+            lat = (float?)location?.Latitude, // Use nullable float
+            lon = (float?)location?.Longitude // Use nullable float
+        };
+
+        // HIGHLIGHT: Serialize the object to a JSON string.
+        string jsonPayload = JsonSerializer.Serialize(payload);
+
+        // HIGHLIGHT: Load the image and resize logic removed.
+        // The image is now sent as a byte array directly, not as a resized stream.
+
         using HttpClient client = new HttpClient();
+        // Assuming ApiKey and AzureFunctionUrl are defined elsewhere in your class
         client.DefaultRequestHeaders.Add("x-api-key", ApiKey);
 
-        // Create a StreamContent directly from the MemoryStream
-        //HttpContent content = new StreamContent(outputStream);
-        // 4. Create the HttpContent from the JSON string.
+        // HIGHLIGHT: Create the HttpContent from the JSON string.
         HttpContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        //content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-
 
         HttpResponseMessage response = await client.PostAsync(AzureFunctionUrl, content);
 
@@ -290,9 +299,6 @@ public partial class MainPage : ContentPage
             await DisplayAlert("Error", $"API call failed: {response.StatusCode}", "OK");
             ResultLabel.Text = $"API call failed with status: {response.StatusCode}\n{responseBody}";
         }
-
-
-
     }
 
     private async void OnGoToNearBYClicked(object sender, EventArgs e)

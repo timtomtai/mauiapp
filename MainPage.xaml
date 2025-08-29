@@ -38,8 +38,8 @@
                     <Button Text="📂 Pick from Gallery" Clicked="OnPickImageClicked" />
                     <Button Text="📸 Capture Image" Clicked="OnCaptureClicked" />
                     <Button Text="🤖 Send to OpenAI" Clicked="OnSendClicked" IsEnabled="True" />
-                    <Button Text="🔍 Azure Classifier" Clicked="OnSendClickedMCP" IsEnabled="True" />
-                    <Button Text="🔍 MCP Classifier" Clicked="OnClassifyImageClicked" IsEnabled="True" />
+                    <Button Text="🔍 Azure Classifier" Clicked="OnClassifyImageClicked" IsEnabled="True" />
+                    <Button Text="🔍 MCP Classifier" Clicked="OnSendClickedMCP" IsEnabled="True" />
                     <Button Text="☁ Save to Azure" Clicked="OnSelectAndUploadImageClicked" IsEnabled="True"/>
                     <Button Text="💾 Save to Gallery" Clicked="OnSaveToGalleryClicked" IsEnabled="True"/>
                 </VerticalStackLayout>
