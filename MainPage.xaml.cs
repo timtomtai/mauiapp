@@ -141,7 +141,8 @@ public partial class MainPage : ContentPage
 
 
             // 3. Upload the image to Azure Blob Storage
-            string connectionString = "DefaultEndpointsProtocol=https;AccountName=campio2025flblob;AccountKey=vs96X1c4z/9o4qTAaNA+S7yISAWYq485WRZx2rPBWpumlciztU5/It50U/lYxm9CJ41iFRFRn8TM+AStK0yi1g==;EndpointSuffix=core.windows.net";
+            string connectionString;
+			connectionString = Environment.GetEnvironmentVariable("YourApiKeyName");
             string containerName = "images";
             string blobName = $"{Guid.NewGuid()}{Path.GetExtension(result.FullPath)}";
 
