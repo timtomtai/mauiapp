@@ -24,9 +24,13 @@ public partial class MainPage : ContentPage
     private FileResult? _photo;
     private string? capturedImagePath;
     private const string AzureContentUnderstandingEndpoint = "https://campio-2025-fl-jsa.services.ai.azure.com/contentunderstanding/analyzers/cu-initial-image-analyzer:analyze?api-version=2025-05-01-preview";
-    private const string SubscriptionKey = "1e5Q5192EaIlWD1f7WElMr8Xl3GLzCqS1tTAI65Y6Hynkrg1kFqAJQQJ99BGAC4f1cMXJ3w3AAAAACOGCkIt"; // **WARNING: Use secure storage for keys.**
-    private readonly string AzureFunctionUrl = "https://mcp-server-backend-tools.gentleforest-803ae226.westus.azurecontainerapps.io/api_initial_image_process";
-    private readonly string ApiKey = "19lJL+W7LNXte+ASltqdeToLkvI8vioXVrHyo6PDSC+ACRC3cyFH";
+    private const string SubscriptionKey ;
+    private readonly string AzureFunctionUrl ;
+    private readonly string ApiKey ;
+	
+	SubscriptionKey = Environment.GetEnvironmentVariable("YourSubscriptionKeyName");
+    AzureFunctionUrl = Environment.GetEnvironmentVariable("YourAzureFunctionUrlName");
+    ApiKey = Environment.GetEnvironmentVariable("YourApiKeyName");
     public MainPage()
     {
         InitializeComponent();
