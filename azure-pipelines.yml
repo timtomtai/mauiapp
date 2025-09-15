@@ -1,0 +1,91 @@
+# Azure DevOps Pipeline for MAUI App with Fabric Workspace Integration
+# Triggers on main branch changes to sync with Microsoft Fabric workspace
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - '*.md'
+      - 'docs/*'
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+
+stages:
+- stage: Build
+  displayName: 'Build Application'
+  jobs:
+  - job: Build
+    displayName: 'Build MAUI Application'
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Install .NET SDK'
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+        includePreviewVersions: false
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Install MAUI Workload'
+      inputs:
+        command: 'custom'
+        custom: 'workload'
+        arguments: 'install maui'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Restore NuGet Packages'
+      inputs:
+        command: 'restore'
+        projects: '$(solution)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build Application'
+      inputs:
+        command: 'build'
+        projects: '$(solution)'
+        arguments: '--configuration $(buildConfiguration) --no-restore'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Run Tests'
+      inputs:
+        command: 'test'
+        projects: '**/*Tests.csproj'
+        arguments: '--configuration $(buildConfiguration) --no-build --verbosity normal'
+      continueOnError: true
+
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Build Artifacts'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: SyncToFabric
+  displayName: 'Sync to Fabric Workspace'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: FabricSync
+    displayName: 'Sync Changes to Fabric Workspace'
+    steps:
+    - checkout: self
+      persistCredentials: true
+
+    - task: PowerShell@2
+      displayName: 'Sync to Fabric Workspace'
+      inputs:
+        targetType: 'filePath'
+        filePath: '$(System.DefaultWorkingDirectory)/Scripts/SyncToFabric.ps1'
+        arguments: '-WorkspaceId "$(FABRIC_WORKSPACE_ID)" -TenantId "$(FABRIC_TENANT_ID)" -ClientId "$(FABRIC_CLIENT_ID)" -ClientSecret "$(FABRIC_CLIENT_SECRET)"'
+      env:
+        FABRIC_WORKSPACE_ID: $(FABRIC_WORKSPACE_ID)
+        FABRIC_TENANT_ID: $(FABRIC_TENANT_ID)
+        FABRIC_CLIENT_ID: $(FABRIC_CLIENT_ID)
+        FABRIC_CLIENT_SECRET: $(FABRIC_CLIENT_SECRET)

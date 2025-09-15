@@ -24,6 +24,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<IImageSaver, Platforms.Android.ImageSaver>();
 #endif
 
+        // Add Fabric Workspace Service for Azure DevOps integration
+        builder.Services.AddHttpClient<FabricWorkspaceService>();
+        builder.Services.AddSingleton<FabricWorkspaceService>();
+
         return builder.Build();
     }
 }

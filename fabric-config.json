@@ -1,0 +1,32 @@
+{
+  "fabricWorkspace": {
+    "description": "Microsoft Fabric Workspace Configuration",
+    "workspaceId": "$(FABRIC_WORKSPACE_ID)",
+    "tenantId": "$(FABRIC_TENANT_ID)",
+    "authentication": {
+      "clientId": "$(FABRIC_CLIENT_ID)",
+      "clientSecret": "$(FABRIC_CLIENT_SECRET)"
+    },
+    "syncSettings": {
+      "enabled": true,
+      "triggerOnMainBranch": true,
+      "notebookNamePrefix": "MAUI-App-Sync",
+      "includeFiles": [
+        "App.xaml.cs",
+        "MainPage.xaml.cs", 
+        "MauiProgram.cs",
+        "**/*.cs"
+      ],
+      "excludeFiles": [
+        "bin/**",
+        "obj/**",
+        "*.tmp"
+      ]
+    },
+    "apiEndpoints": {
+      "tokenUrl": "https://login.microsoftonline.com/{tenantId}/oauth2/v2.0/token",
+      "fabricApiBase": "https://api.fabric.microsoft.com/v1",
+      "scope": "https://api.fabric.microsoft.com/.default"
+    }
+  }
+}
